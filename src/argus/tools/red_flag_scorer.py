@@ -68,8 +68,6 @@ class RedFlagScorerTool(BaseTool):
 
         if high_hits:
             level = "high"
-        elif len(med_hits) >= 2:
-            level = "medium"
         elif med_hits:
             level = "medium"
         else:

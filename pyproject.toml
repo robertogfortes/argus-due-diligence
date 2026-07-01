@@ -5,7 +5,7 @@ description = "ARGUS — Autonomous Risk & Governance Uncovering System"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "crewai[tools]>=0.80.0",
+    "crewai[tools]>=1.0.0",
     "python-dotenv>=1.0.0",
     "pyyaml>=6.0.0",
 ]

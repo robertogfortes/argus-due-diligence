@@ -330,7 +330,15 @@ class ArgusCrew:
             description=tc["briefing_task"]["description"],
             expected_output=tc["briefing_task"]["expected_output"],
             agent=editor,
-            context=[intake_task, dossier_task],
+            context=[
+                intake_task,
+                financial_task,
+                reputational_task,
+                legal_task,
+                operational_task,
+                verification_task,
+                dossier_task,
+            ],
             output_file=str(_OUTPUTS_DIR / "risk_briefing.md"),
         )
 

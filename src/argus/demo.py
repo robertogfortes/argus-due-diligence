@@ -264,7 +264,7 @@ in {p.jurisdiction}. This briefing summarizes the ARGUS due diligence completed 
 
 **Recommendation: {p.recommendation.value.replace('_', ' ').upper()}.**
 
-{p.conditions}
+{p.conditions or ""}
 
 Reviewed by: _________________________   Date: _______________
 """
