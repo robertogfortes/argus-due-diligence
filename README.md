@@ -120,7 +120,7 @@ Chief Investigation Officer (gerente hierárquico)
 
 ```bash
 # Clone o repositório
-git clone https://github.com/robertofortes23/argus-due-diligence.git
+git clone https://github.com/robertogfortes/argus-due-diligence.git
 cd argus-due-diligence
 
 # Crie e ative um ambiente virtual
