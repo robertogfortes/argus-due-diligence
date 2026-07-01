@@ -1,0 +1,57 @@
+# Environment
+.env
+*.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project outputs (generated files)
+outputs/*.md
+outputs/*.json
+outputs/*.txt
+!outputs/.gitkeep
+
+# CrewAI / LangChain memory stores
+.chroma/
+chroma_db/
+db/
+*.sqlite
+*.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Spec document (internal only)
+Projeto_ARGUS_DueDiligence_CrewAI_SDD_BMAD.md
