@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from crewai import Agent, Crew, Process, Task
+from crewai import LLM, Agent, Crew, Process, Task
 from crewai_tools import (
     DirectoryReadTool,
     FileReadTool,
@@ -14,7 +14,6 @@ from crewai_tools import (
     SerperDevTool,
     WebsiteSearchTool,
 )
-from langchain_openai import ChatOpenAI
 
 from argus.models.risk_profile import CompanyRiskProfile
 from argus.tools import (
@@ -55,14 +54,14 @@ class ArgusCrew:
 
     # ── LLM helpers ───────────────────────────────────────────────────────────
 
-    def _agent_llm(self) -> ChatOpenAI:
-        return ChatOpenAI(
+    def _agent_llm(self) -> LLM:
+        return LLM(
             model=os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini"),
             temperature=float(os.getenv("AGENT_TEMPERATURE", "0.2")),
         )
 
-    def _manager_llm(self) -> ChatOpenAI:
-        return ChatOpenAI(
+    def _manager_llm(self) -> LLM:
+        return LLM(
             model=os.getenv("MANAGER_MODEL_NAME", "gpt-4o"),
             temperature=float(os.getenv("AGENT_TEMPERATURE", "0.2")),
         )
