@@ -50,50 +50,99 @@ class ArgusCrew:
         self._tasks_cfg = _load_yaml(_HERE / "config" / "tasks.yaml")
         _OUTPUTS_DIR.mkdir(exist_ok=True)
         self._verbose = os.getenv("ARGUS_VERBOSE", "true").lower() == "true"
-        self._memory = os.getenv("ARGUS_MEMORY", "true").lower() == "true"
+        # Mock-sources mode: fake the network lookups (search/scrape) but let the real
+        # crew + LLM produce the result. Sources are mocked, the RESULT is real.
+        self._mock_sources = os.getenv("ARGUS_MOCK_SOURCES", "false").lower() == "true"
+        # Official site for URL-scoped scraping (a guardrail: the scoped scrape can only
+        # read the target's own site). Set by main.py from the company_website input.
+        self._official_site = os.getenv("ARGUS_OFFICIAL_SITE", "").strip()
+        # Memory needs an embeddings provider; disable by default in mock mode so the
+        # pipeline runs with any LLM provider without extra embedding credentials.
+        default_memory = "false" if self._mock_sources else "true"
+        self._memory = os.getenv("ARGUS_MEMORY", default_memory).lower() == "true"
 
     # ── LLM helpers ───────────────────────────────────────────────────────────
 
+    def _make_llm(self, model: str) -> LLM:
+        # base_url lets you point at a local Ollama server or any OpenAI-compatible endpoint.
+        base_url = os.getenv("ARGUS_LLM_BASE_URL") or None
+        kwargs: dict[str, Any] = {
+            "model": model,
+            "temperature": float(os.getenv("AGENT_TEMPERATURE", "0.2")),
+        }
+        if base_url:
+            kwargs["base_url"] = base_url
+        return LLM(**kwargs)
+
     def _agent_llm(self) -> LLM:
-        return LLM(
-            model=os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini"),
-            temperature=float(os.getenv("AGENT_TEMPERATURE", "0.2")),
-        )
+        # ARGUS_LLM_MODEL wins (any provider, e.g. ollama/llama3.1); OPENAI_MODEL_NAME is the
+        # OpenAI-specific fallback. Cheaper model for the specialists.
+        model = os.getenv("ARGUS_LLM_MODEL") or os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
+        return self._make_llm(model)
 
     def _manager_llm(self) -> LLM:
-        return LLM(
-            model=os.getenv("MANAGER_MODEL_NAME", "gpt-4o"),
-            temperature=float(os.getenv("AGENT_TEMPERATURE", "0.2")),
-        )
+        # Stronger model for the Chief Investigation Officer (manager).
+        model = os.getenv("ARGUS_MANAGER_MODEL") or os.getenv("MANAGER_MODEL_NAME", "gpt-4o")
+        return self._make_llm(model)
 
-    # ── Shared tools ──────────────────────────────────────────────────────────
+    # ── Source tools (real network vs. mocked fixtures) ───────────────────────
 
-    def _tools_search(self) -> list:
-        return [SerperDevTool()]
+    def _search_tool(self):
+        if self._mock_sources:
+            from argus.mock_sources import MockSearchTool
 
-    def _tools_scrape(self) -> list:
-        return [ScrapeWebsiteTool()]
+            return MockSearchTool()
+        return SerperDevTool()
+
+    def _scrape_tool(self):
+        if self._mock_sources:
+            from argus.mock_sources import MockScrapeTool
+
+            return MockScrapeTool()
+        return ScrapeWebsiteTool()
+
+    def _scoped_scrape_tool(self):
+        """Guardrail: a scrape tool locked to the target's official website (tool-scoping)."""
+        if self._mock_sources:
+            from argus.mock_sources import MockScrapeTool
+
+            return MockScrapeTool()
+        if self._official_site:
+            return ScrapeWebsiteTool(website_url=self._official_site)
+        return ScrapeWebsiteTool()
+
+    def _website_search_tool(self):
+        if self._mock_sources:
+            from argus.mock_sources import MockWebsiteSearchTool
+
+            return MockWebsiteSearchTool()
+        return WebsiteSearchTool()
+
+    # ── Per-agent tool sets ───────────────────────────────────────────────────
 
     def _tools_intake(self) -> list:
-        tools = [DirectoryReadTool(directory=str(_PLAYBOOKS_DIR)), FileReadTool()]
-        return tools
+        return [DirectoryReadTool(directory=str(_PLAYBOOKS_DIR)), FileReadTool()]
 
     def _tools_financial(self) -> list:
-        return [SerperDevTool(), ScrapeWebsiteTool(), FinancialHealthTool()]
+        return [self._search_tool(), self._scrape_tool(), FinancialHealthTool()]
 
     def _tools_reputational(self) -> list:
-        return [SerperDevTool(), WebsiteSearchTool(), NewsSentimentTool()]
+        return [self._search_tool(), self._website_search_tool(), NewsSentimentTool()]
 
     def _tools_legal(self) -> list:
-        return [SerperDevTool(), ScrapeWebsiteTool(), EntityConsistencyTool()]
+        return [self._search_tool(), self._scrape_tool(), EntityConsistencyTool()]
 
     def _tools_operational(self) -> list:
-        return [SerperDevTool(), ScrapeWebsiteTool(), RedFlagScorerTool()]
+        return [self._search_tool(), self._scrape_tool(), RedFlagScorerTool()]
 
     def _tools_qa(self) -> list:
-        if _POLICIES_FILE.exists():
-            return [MDXSearchTool(mdx=str(_POLICIES_FILE))]
-        return []
+        # MDXSearchTool builds an OpenAI-embedded index; in mock mode we read the policy
+        # file directly so QA works with any LLM provider and no embedding credentials.
+        if not _POLICIES_FILE.exists():
+            return []
+        if self._mock_sources:
+            return [FileReadTool()]
+        return [MDXSearchTool(mdx=str(_POLICIES_FILE))]
 
     # ── Agents — Squad 1: Intake ──────────────────────────────────────────────
 
@@ -246,6 +295,9 @@ class ArgusCrew:
             expected_output=tc["operational_investigation_task"]["expected_output"],
             agent=operational,
             async_execution=True,
+            # Task-level tools override the agent's tools for this task. Here we swap in a
+            # URL-scoped scrape (guardrail: can only read the target's official site).
+            tools=[self._search_tool(), self._scoped_scrape_tool(), RedFlagScorerTool()],
         )
 
         # Squad 3 — QA / Verification (waits for all 4, pauses for human review)

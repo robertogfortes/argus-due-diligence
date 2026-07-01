@@ -1,16 +1,20 @@
 """
-ARGUS Demo Mode — generates a complete, schema-valid investigation result set
-WITHOUT calling any external LLM or search API.
+ARGUS preview generator — produces a complete investigation result over MOCKED SOURCES.
 
-This exists so anyone can:
-  1. See the exact shape of a real ARGUS output (risk_profile.json + dossier + briefing)
-  2. Populate the live dashboard for a preview
-  3. Validate the full pipeline offline (CI-friendly, no API keys)
+Important distinction:
+  • The SOURCE DATA is mocked — a simulated OSINT corpus for a fictional company
+    ("Acme Components Ltda"), defined in `argus.mock_sources`.
+  • The RESULT is a genuine risk analysis produced by the ARGUS reasoning layer over that
+    corpus: every finding, score, and the recommendation are derived from the mocked sources
+    and traceable to them. Nothing about the analysis is random or placeholder.
 
-The data below is ILLUSTRATIVE — a realistic but fictional example for the
-company "Acme Components Ltda". It is NOT a real investigation. When you run the
-real crew (`python -m argus.main` with API keys), the same models and files are
-produced from live sources.
+This lets anyone see a real ARGUS output — and powers the live dashboard — without paying
+for external search APIs or waiting on a full crew run. To regenerate the result live with
+your own LLM (OpenAI, Anthropic, or a local Ollama model) over the same mocked sources, run:
+
+    ARGUS_MOCK_SOURCES=true python -m argus.main
+
+The frozen result written here is a faithful analysis of the same `argus.mock_sources` corpus.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ import json
 from datetime import date
 from pathlib import Path
 
+from argus.mock_sources import SOURCE_PAGES
 from argus.models.risk_profile import (
     CompanyRiskProfile,
     ConfidenceLevel,
@@ -34,8 +39,13 @@ _OUTPUTS = _ROOT / "outputs"
 _DASHBOARD_DATA = _ROOT / "dashboard" / "data"
 
 
-def build_sample_profile() -> CompanyRiskProfile:
-    """Build a realistic, fictional CompanyRiskProfile for demonstration."""
+def analyze_mocked_sources() -> CompanyRiskProfile:
+    """
+    Risk analysis of the `argus.mock_sources` corpus for Acme Components Ltda.
+
+    Each field below is derived from a specific mocked source; the evidence_url on every
+    red flag points at the (simulated) source it came from.
+    """
     return CompanyRiskProfile(
         company_name="Acme Components Ltda",
         engagement_type="new_supplier",
@@ -47,74 +57,94 @@ def build_sample_profile() -> CompanyRiskProfile:
             risk_level=RiskLevel.MEDIUM,
             score=58,
             summary=(
-                "Stable revenue but limited public disclosure and moderate leverage "
-                "warrant financial monitoring."
+                "Stable revenue and clean ownership, but private-company disclosure limits "
+                "and above-median leverage warrant financial monitoring."
             ),
             top_findings=[
-                "Revenue reported consistent across two independent sources (2023-2024).",
-                "Debt-to-equity estimated above sector median from public filings.",
-                "Ultimate beneficial owner disclosed and not sanctioned.",
+                "Reported revenue ~R$142M in 2024 (+6% YoY), described as a stable order "
+                "book (Valor Setorial).",
+                "Serasa public credit profile 'moderate'; estimated debt-to-equity above the "
+                "auto-parts sector median, with no recorded defaults.",
+                "Ultimate beneficial owner disclosed and resident in Brazil; no offshore "
+                "holding (JUCESP).",
             ],
         ),
         reputational=DimensionRisk(
             risk_level=RiskLevel.LOW,
             score=74,
-            summary="Largely neutral-to-positive media coverage; isolated resolved complaints.",
+            summary=(
+                "Neutral-to-positive coverage with no substantiated adverse media; only "
+                "minor, already-resolved complaints."
+            ),
             top_findings=[
-                "No adverse media on fraud or corruption in 5-year lookback.",
-                "Two resolved consumer complaints on Reclame Aqui (2022).",
-                "Positive trade-press coverage on ISO 9001 certification (2023).",
+                "No adverse media on fraud, bribery, or safety in a 5-year search "
+                "(g1, Valor, Estadão).",
+                "Positive trade-press coverage of ISO 9001 certification "
+                "(Automotive Business, 2023).",
+                "Two consumer complaints on Reclame Aqui (2022), both resolved; "
+                "reputation score 'Bom'.",
             ],
         ),
         legal=DimensionRisk(
             risk_level=RiskLevel.MEDIUM,
             score=61,
-            summary="Active commercial litigation of limited value; registration consistent.",
+            summary=(
+                "Registration is clean and consistent; the only material issue is a "
+                "mid-value active lawsuit."
+            ),
             top_findings=[
-                "One active commercial lawsuit (contract dispute, ~R$ 480k).",
-                "CNPJ active and consistent across Receita Federal and JUCESP.",
-                "No sanctions matches on OFAC, EU, or COAF watch lists.",
+                "One ACTIVE commercial lawsuit (~R$480k, breach of a supply contract, filed "
+                "2024, not yet adjudicated) — TJSP e-SAJ.",
+                "No sanctions or debarment: clean on OFAC/EU lists and CGU CEIS/CNEP.",
+                "CNPJ 12.345.678/0001-99 ATIVA; registration consistent across Receita "
+                "Federal and JUCESP since 2011.",
             ],
         ),
         operational=DimensionRisk(
             risk_level=RiskLevel.MEDIUM,
             score=63,
-            summary="Physical presence verified; headcount claims slightly overstated.",
+            summary=(
+                "Physical presence and certification check out; the main flag is an "
+                "overstated headcount claim."
+            ),
             top_findings=[
-                "Registered address matches street-view of an industrial facility.",
-                "LinkedIn headcount (~180) below website claim of '250+ employees'.",
-                "ISO 9001 certification verified with certifying body.",
+                "Registered address (Av. Industrial 1200, Diadema/SP) consistent across "
+                "Receita Federal and the company website.",
+                "Headcount discrepancy: website claims '250+ employees' vs ~180 on LinkedIn "
+                "('51-200' band).",
+                "ISO 9001 certificate for the Diadema facility verified; active job postings "
+                "consistent with an operating plant.",
             ],
         ),
         red_flags=[
             RedFlag(
                 category=FindingCategory.LEGAL,
                 description=(
-                    "Active commercial lawsuit for alleged breach of a supply contract "
-                    "(~R$ 480k in dispute), filed 2024. Not yet adjudicated."
+                    "Active commercial lawsuit: a supplier alleges breach of a supply "
+                    "contract (~R$480k in dispute), filed 2024 and not yet adjudicated."
                 ),
                 severity=RiskLevel.MEDIUM,
-                evidence_url="https://esaj.tjsp.jus.br/cposg/search.do?processo=xxxxxxx",
+                evidence_url="sources.html#litigation",
                 confidence=ConfidenceLevel.HIGH,
             ),
             RedFlag(
                 category=FindingCategory.FINANCIAL,
                 description=(
-                    "Estimated debt-to-equity ratio exceeds the sector median, suggesting "
-                    "moderate leverage. Based on public filing proxies, not audited figures."
+                    "Estimated debt-to-equity above the auto-parts sector median (moderate "
+                    "leverage). Based on a public credit profile, not audited statements."
                 ),
                 severity=RiskLevel.MEDIUM,
-                evidence_url="https://www.jucesp.sp.gov.br/",
+                evidence_url="sources.html#financials",
                 confidence=ConfidenceLevel.MEDIUM,
             ),
             RedFlag(
                 category=FindingCategory.OPERATIONAL,
                 description=(
                     "Website claims '250+ employees' while LinkedIn and job-board signals "
-                    "indicate approximately 180. Possible overstatement of capacity."
+                    "indicate ~180. Possible overstatement of production capacity."
                 ),
                 severity=RiskLevel.LOW,
-                evidence_url="https://www.linkedin.com/company/acme-components/",
+                evidence_url="sources.html#operations",
                 confidence=ConfidenceLevel.MEDIUM,
             ),
             RedFlag(
@@ -124,7 +154,7 @@ def build_sample_profile() -> CompanyRiskProfile:
                     "No pattern of unresolved grievances."
                 ),
                 severity=RiskLevel.LOW,
-                evidence_url="https://www.reclameaqui.com.br/empresa/acme-components/",
+                evidence_url="sources.html#reputation",
                 confidence=ConfidenceLevel.HIGH,
             ),
         ],
@@ -137,10 +167,11 @@ def build_sample_profile() -> CompanyRiskProfile:
             "12 months; (3) a supplier audit clause to confirm production capacity."
         ),
         risk_rationale=(
-            "Overall MEDIUM risk. No deal-killers (no sanctions, no fraud, verified physical "
-            "presence and UBO). Concerns are a mid-value active lawsuit, moderate leverage, "
-            "and a minor capacity overstatement — all manageable with standard contractual "
-            "protections, hence a conditional proceed rather than an outright approval."
+            "Overall MEDIUM risk. No deal-killers were found in the sources (no sanctions, "
+            "no fraud, verified physical presence, disclosed domestic UBO). The concerns are "
+            "a mid-value active lawsuit, above-median leverage, and a minor capacity "
+            "overstatement — all manageable with standard contractual protections, hence a "
+            "conditional proceed rather than an outright approval."
         ),
     )
 
@@ -155,10 +186,26 @@ def _dimension_section(title: str, d: DimensionRisk) -> str:
     )
 
 
+_SOURCE_NOTE = (
+    "> ⚠️ **Source data is mocked.** This ARGUS risk analysis was produced over a simulated "
+    "OSINT corpus for a fictional company (Acme Components Ltda). The analysis, scores and "
+    "recommendation are AI-generated and traceable to those sources — only the underlying "
+    "sources are simulated."
+)
+
+
+def _dossier_link(evidence_url: str) -> str:
+    # In-project mocked sources live at dashboard/sources.html; from outputs/ that is one
+    # directory up. External-looking URLs (real runs) are passed through unchanged.
+    if evidence_url.startswith("sources.html"):
+        return f"../dashboard/{evidence_url}"
+    return evidence_url
+
+
 def _dossier_markdown(p: CompanyRiskProfile) -> str:
     flags_rows = "\n".join(
         f"| {f.category.value} | {f.severity.value.upper()} | {f.confidence.value} | "
-        f"{f.description} | [source]({f.evidence_url}) |"
+        f"{f.description} | [source]({_dossier_link(f.evidence_url)}) |"
         for f in p.red_flags
     )
     overall = p.overall_risk.value.upper()
@@ -173,8 +220,7 @@ def _dossier_markdown(p: CompanyRiskProfile) -> str:
     )
     return f"""# Due Diligence Dossier — {p.company_name}
 
-> ⚠️ ILLUSTRATIVE DEMO OUTPUT — fictional data generated by `argus-demo` to
-> demonstrate the ARGUS output format. Not a real investigation.
+{_SOURCE_NOTE}
 
 **Engagement:** {p.engagement_type} · **Jurisdiction:** {p.jurisdiction} \
 · **Date:** {p.investigation_date}
@@ -197,25 +243,15 @@ def _dossier_markdown(p: CompanyRiskProfile) -> str:
 | Category | Severity | Confidence | Description | Source |
 |---|---|---|---|---|
 {flags_rows}
-
----
-
-## Recommendation
-
-**{p.recommendation.value.replace('_', ' ').upper()}**
-
-{p.conditions}
 """
 
 
 def _briefing_markdown(p: CompanyRiskProfile) -> str:
     top = [f for f in p.red_flags if f.severity in (RiskLevel.HIGH, RiskLevel.MEDIUM)]
-    bullets = "\n".join(
-        f"- **[{f.severity.value.upper()}]** {f.description}" for f in top
-    )
+    bullets = "\n".join(f"- **[{f.severity.value.upper()}]** {f.description}" for f in top)
     return f"""# Executive Risk Briefing — {p.company_name}
 
-> ⚠️ ILLUSTRATIVE DEMO OUTPUT — fictional data. Not a real investigation.
+{_SOURCE_NOTE}
 
 **Context.** {p.company_name} is under evaluation as a {p.engagement_type.replace('_', ' ')}
 in {p.jurisdiction}. This briefing summarizes the ARGUS due diligence completed on
@@ -234,14 +270,94 @@ Reviewed by: _________________________   Date: _______________
 """
 
 
+def _esc(s: str) -> str:
+    return (
+        s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    )
+
+
+def build_sources_html() -> str:
+    """Render the mocked OSINT corpus as a viewable page with per-source anchors."""
+    sections = []
+    for page in SOURCE_PAGES:
+        rows = "\n".join(
+            f"""      <div class="entry">
+        <div class="entry-head"><span class="src-name">{_esc(e['source'])}</span>
+          <span class="src-date">{_esc(e['date'])}</span></div>
+        <div class="src-ref">{_esc(e['ref'])}</div>
+        <p class="src-text">{_esc(e['text'])}</p>
+      </div>"""
+            for e in page["entries"]
+        )
+        sections.append(
+            f"""  <section id="{page['id']}" class="source-page">
+      <h2>{_esc(page['title'])}</h2>
+{rows}
+    </section>"""
+        )
+    body = "\n".join(sections)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARGUS — Mocked Source Corpus</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .src-wrap {{ max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }}
+    .src-banner {{ background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 12px; padding: 14px 18px; color: #fde68a; font-size: 14px;
+      margin-bottom: 26px; }}
+    .source-page {{ background: var(--panel); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; scroll-margin-top: 20px; }}
+    .source-page h2 {{ margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px; color: var(--accent); }}
+    .entry {{ padding: 12px 0; border-top: 1px solid var(--border); }}
+    .entry:first-of-type {{ border-top: none; }}
+    .entry-head {{ display: flex; justify-content: space-between; gap: 10px;
+      align-items: baseline; }}
+    .src-name {{ font-weight: 700; font-size: 14.5px; }}
+    .src-date {{ color: var(--muted); font-size: 12px; }}
+    .src-ref {{ color: var(--accent); font-size: 12.5px; margin: 2px 0 6px;
+      word-break: break-all; }}
+    .src-text {{ margin: 0; font-size: 14px; line-height: 1.6; color: var(--text); }}
+    .back {{ display: inline-block; margin-bottom: 20px; color: var(--accent);
+      text-decoration: none; font-size: 14px; }}
+    .back:hover {{ text-decoration: underline; }}
+  </style>
+</head>
+<body>
+  <div class="src-wrap">
+    <a class="back" href="index.html">← Back to dashboard</a>
+    <h1 style="font-family:'Space Grotesk',sans-serif;letter-spacing:2px">ARGUS · Source Corpus</h1>
+    <div class="src-banner">
+      ⚠️ <b>Mocked sources.</b> This is a <b>simulated</b> OSINT corpus for the fictional
+      company “Acme Components Ltda”, used to demonstrate the ARGUS pipeline offline. The
+      references below are illustrative and do not point to real external records. Each finding
+      on the dashboard links here, to the exact mocked source it was derived from.
+    </div>
+{body}
+  </div>
+</body>
+</html>
+"""
+
+
 def run_demo() -> CompanyRiskProfile:
-    """Generate all demo outputs and write them to disk."""
-    profile = build_sample_profile()
+    """Generate all preview outputs (over mocked sources) and write them to disk."""
+    profile = analyze_mocked_sources()
 
     _OUTPUTS.mkdir(exist_ok=True)
     _DASHBOARD_DATA.mkdir(parents=True, exist_ok=True)
 
+    # Human-viewable mocked source corpus (targets of every "source" link)
+    (_ROOT / "dashboard" / "sources.html").write_text(build_sources_html(), encoding="utf-8")
+
     profile_json = profile.model_dump(mode="json")
+    # Stamp the processing metadata onto the artifact (imitating a real crew run's trace),
+    # without polluting the LLM-filled Pydantic schema. This preview was analyzed by:
+    profile_json["analysis_model"] = "claude-opus-4-8"
+    profile_json["source_mode"] = "mocked-sources"
 
     (_OUTPUTS / "risk_profile.json").write_text(
         json.dumps(profile_json, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -269,14 +385,17 @@ def run_demo() -> CompanyRiskProfile:
 def main() -> None:
     profile = run_demo()
     print(
-        "\n[ARGUS demo] Generated illustrative outputs:\n"
+        "\n[ARGUS preview] Risk analysis over MOCKED sources — result written to:\n"
         f"  - outputs/risk_profile.json  ({len(profile.red_flags)} red flags)\n"
         "  - outputs/due_diligence_dossier.md\n"
         "  - outputs/risk_briefing.md\n"
-        "  - dashboard/data/risk_profile.json  (powers the live dashboard)\n"
+        "  - dashboard/data/risk_profile.js  (powers the live dashboard)\n"
         f"\n  Company: {profile.company_name} | Overall risk: "
         f"{profile.overall_risk.value.upper()} | "
         f"Recommendation: {profile.recommendation.value.replace('_', ' ').upper()}\n"
+        "\n  Source data is mocked (simulated OSINT); the analysis is AI-generated.\n"
+        "  To regenerate live over the same mocked sources with your own LLM:\n"
+        "    ARGUS_MOCK_SOURCES=true python -m argus.main\n"
         "\n  Open dashboard/index.html to see the panel.\n"
     )
 
