@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Type
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -25,7 +24,7 @@ class NewsSentimentTool(BaseTool):
         "signal distribution and an overall score from -100 (very negative) "
         "to +100 (very positive). Use for reputational due diligence."
     )
-    args_schema: Type[BaseModel] = NewsSentimentInput
+    args_schema: type[BaseModel] = NewsSentimentInput
 
     _NEGATIVE: list[str] = [
         r"\bscandal\b",

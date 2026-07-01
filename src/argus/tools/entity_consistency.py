@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Type
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -26,7 +25,7 @@ class EntityConsistencyTool(BaseTool):
         "opacity signals. Returns CONSISTENT | INCONSISTENCIES_FOUND with details. "
         "Use during legal & compliance due diligence."
     )
-    args_schema: Type[BaseModel] = EntityConsistencyInput
+    args_schema: type[BaseModel] = EntityConsistencyInput
 
     _PATTERNS: list[tuple[str, str, str]] = [
         (r"\bdifferent\s+address\w*\b", "Address mismatch detected across sources", "MEDIUM"),
@@ -48,7 +47,7 @@ class EntityConsistencyTool(BaseTool):
             "MEDIUM",
         ),
         (r"\bfrequent\s+director\s+change\w*\b", "Frequent director changes flagged", "MEDIUM"),
-        (r"\bregistered\s+agent\b", "Registered-agent-only presence (no operational address)", "LOW"),
+        (r"\bregistered\s+agent\b", "Registered-agent-only presence (no office)", "LOW"),
         (r"\bpo\s+box\b", "PO Box as registered address (no physical office)", "LOW"),
         (r"\bdormant\b", "Company or subsidiary listed as dormant", "MEDIUM"),
     ]

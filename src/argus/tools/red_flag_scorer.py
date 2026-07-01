@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Type
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -25,7 +24,7 @@ class RedFlagScorerTool(BaseTool):
         "fraud language, or operational warning signs. "
         "Returns: risk level (low | medium | high) and flagged phrases found."
     )
-    args_schema: Type[BaseModel] = RedFlagScorerInput
+    args_schema: type[BaseModel] = RedFlagScorerInput
 
     _HIGH_SIGNALS: list[str] = [
         r"\bfraud\b",

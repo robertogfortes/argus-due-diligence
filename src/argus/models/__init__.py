@@ -1,10 +1,10 @@
 from argus.models.risk_profile import (
     CompanyRiskProfile,
-    RedFlag,
-    RiskLevel,
     ConfidenceLevel,
     FindingCategory,
     Recommendation,
+    RedFlag,
+    RiskLevel,
 )
 
 __all__ = [

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -47,7 +46,7 @@ class DimensionRisk(BaseModel):
     risk_level: RiskLevel
     score: int = Field(..., ge=0, le=100, description="0=max risk, 100=no risk")
     summary: str = Field(..., description="One-sentence summary of dimension findings")
-    top_findings: List[str] = Field(
+    top_findings: list[str] = Field(
         default_factory=list, description="Top 3 findings for this dimension"
     )
 
@@ -72,7 +71,7 @@ class CompanyRiskProfile(BaseModel):
     legal: DimensionRisk = Field(..., description="Legal & compliance dimension assessment")
     operational: DimensionRisk = Field(..., description="Operational dimension assessment")
 
-    red_flags: List[RedFlag] = Field(
+    red_flags: list[RedFlag] = Field(
         default_factory=list, description="All red flags found, ordered by severity"
     )
 
@@ -84,7 +83,7 @@ class CompanyRiskProfile(BaseModel):
     )
 
     recommendation: Recommendation = Field(..., description="Final recommendation")
-    conditions: Optional[str] = Field(
+    conditions: str | None = Field(
         None, description="Required conditions if recommendation is proceed_with_conditions"
     )
     risk_rationale: str = Field(

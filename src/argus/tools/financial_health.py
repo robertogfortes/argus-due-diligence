@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Type
 
 from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
@@ -25,7 +24,7 @@ class FinancialHealthTool(BaseTool):
         "to 100 (very healthy), plus a risk signal and brief rationale. "
         "Use for financial due diligence when evaluating company stability."
     )
-    args_schema: Type[BaseModel] = FinancialHealthInput
+    args_schema: type[BaseModel] = FinancialHealthInput
 
     _NEGATIVE: list[str] = [
         r"\bgoing[\s-]concern\b",

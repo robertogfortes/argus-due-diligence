@@ -1,6 +1,5 @@
 """Tests for ARGUS custom CrewAI tools."""
 
-import pytest
 
 from argus.tools import (
     EntityConsistencyTool,
