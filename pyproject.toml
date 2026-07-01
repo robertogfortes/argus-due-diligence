@@ -18,6 +18,7 @@ dev = [
 
 [project.scripts]
 argus = "argus.main:main"
+argus-demo = "argus.demo:main"
 
 [build-system]
 requires = ["setuptools>=68"]
