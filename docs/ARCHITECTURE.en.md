@@ -163,15 +163,28 @@ the QA agent against [`policies.md`](../policies.md).
 
 ---
 
-## 7. Try it yourself
+## 7. Three ways to run it
+
+| Mode | Command | Sources | Result | Needs |
+|---|---|---|---|---|
+| **Preview** | `python -m argus.demo` | mocked | frozen analysis (powers the dashboard) | nothing |
+| **Mock-sources** | `ARGUS_MOCK_SOURCES=true python -m argus.main` | mocked | **produced live by the AI** | one LLM (OpenAI / Anthropic / local Ollama) |
+| **Full** | `python -m argus.main` | live (Serper) | produced live by the AI | OpenAI + Serper |
+
+**Sources mocked, result real.** In mock-sources mode, only the raw search/scrape lookups are
+faked (via `argus.mock_sources`); the agents and the LLM still perform genuine analysis. The
+model that produced the analysis is recorded in the output's `analysis_model` field, and every
+finding links to the exact mocked source it came from
+([sources page](https://robertogfortes.github.io/argus-due-diligence/sources.html)).
+
+**Run it free & local** with [Ollama](https://ollama.com) — no API key at all:
 
 ```bash
-# Offline — no API keys, generates a real result set + powers the dashboard
-python -m argus.demo
-
-# Full investigation — needs OPENAI_API_KEY + SERPER_API_KEY in .env
-python -m argus.main
+ARGUS_LLM_MODEL=ollama/llama3.1 ARGUS_LLM_BASE_URL=http://localhost:11434 \
+  ARGUS_MOCK_SOURCES=true python -m argus.main
 ```
 
 Open [`dashboard/index.html`](../dashboard/index.html) locally, or see the
 [live dashboard](https://robertogfortes.github.io/argus-due-diligence/).
+
+> Full concept coverage (all 35 course concepts): [COVERAGE.md](COVERAGE.md).

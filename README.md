@@ -20,36 +20,49 @@ O sistema orquestra 8 agentes especialistas em um processo hierárquico e parale
   🧪 <a href="#-preview-do-resultado-sem-api-key">Preview sem API key</a>
 </p>
 
-> 💡 **Prévia do processamento:** o dashboard acima renderiza uma **saída real do ARGUS**
-> (o `risk_profile.json` gerado pelo pipeline). Rode `python -m argus.demo` para gerar o
-> conjunto completo de resultados offline — sem nenhuma chave de API — e veja exatamente o
-> formato dos dados que a IA produz ao final deste fluxo.
+> 💡 **Prévia do processamento:** o dashboard acima renderiza uma **saída real do ARGUS**.
+> A **fonte de dados é mockada** (um corpus OSINT simulado de uma empresa fictícia), mas a
+> **análise, os scores e a recomendação são gerados por IA** — cada achado é rastreável à
+> fonte mockada que o originou. Clicar em qualquer *"source ↗"* abre a
+> [fonte mockada dentro do projeto](https://robertogfortes.github.io/argus-due-diligence/sources.html).
 
 ---
 
-## 🖼️ Preview do resultado (sem API key)
+## 🖼️ Preview do resultado (fontes mockadas, análise real)
 
-Para ver o resultado final do processamento **sem configurar nada**, rode o modo demo. Ele
-gera um `CompanyRiskProfile` tipado (validado pelo Pydantic) e alimenta o dashboard:
+Existem **três modos** de rodar o ARGUS:
+
+| Modo | Comando | Fontes | Resultado | Precisa de |
+|---|---|---|---|---|
+| **Preview** | `python -m argus.demo` | mockadas | análise congelada (a mesma do dashboard) | nada |
+| **Mock-sources** | `ARGUS_MOCK_SOURCES=true python -m argus.main` | mockadas | **gerado ao vivo pela IA** | só 1 LLM (OpenAI/Anthropic/**Ollama local grátis**) |
+| **Full** | `python -m argus.main` | reais (Serper) | gerado ao vivo pela IA | OpenAI + Serper |
+
+O modo **preview** roda sem configurar nada e produz:
 
 ```bash
 pip install -e .
-python -m argus.demo         # gera outputs/ + dashboard/data/
+python -m argus.demo         # gera outputs/ + dashboard/data/ + dashboard/sources.html
 # abra dashboard/index.html no navegador
 ```
 
-Isso produz:
-
 | Arquivo | Conteúdo |
 |---|---|
-| `outputs/risk_profile.json` | Perfil de risco tipado (o mesmo que a IA gera no fluxo real) |
+| `outputs/risk_profile.json` | Perfil de risco tipado + metadados (`analysis_model`, `source_mode`) |
 | `outputs/due_diligence_dossier.md` | Dossiê completo por dimensão |
 | `outputs/risk_briefing.md` | Briefing executivo de 1 página |
-| `dashboard/data/risk_profile.js` | Alimenta o painel visual |
+| `dashboard/sources.html` | Corpus de fontes mockadas (alvo dos links de evidência) |
 
-> Os dados do demo são **ilustrativos e fictícios** (empresa "Acme Components Ltda"),
-> apenas para demonstrar o formato. No fluxo real (`python -m argus.main` com chaves de API),
-> os mesmos arquivos são gerados a partir de fontes públicas reais.
+> **Sobre os dados:** a **fonte** é um corpus OSINT **simulado** (empresa fictícia "Acme
+> Components Ltda") — deixado explícito no dashboard e na página de fontes. A **análise** é
+> produzida por um LLM sobre esse corpus; o modelo que processou fica registrado no campo
+> `analysis_model` da saída. Para regenerar ao vivo com seu próprio LLM sobre as mesmas
+> fontes mockadas: `ARGUS_MOCK_SOURCES=true python -m argus.main`.
+
+> 🧠 **100% local e grátis:** com [Ollama](https://ollama.com) você roda sem nenhuma API key —
+> `ARGUS_LLM_MODEL=ollama/llama3.1 ARGUS_LLM_BASE_URL=http://localhost:11434 ARGUS_MOCK_SOURCES=true python -m argus.main`
+
+📋 Cobertura completa dos 35 conceitos do curso: [docs/COVERAGE.md](docs/COVERAGE.md)
 
 ---
 

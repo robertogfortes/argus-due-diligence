@@ -163,15 +163,28 @@ QA contra [`policies.md`](../policies.md).
 
 ---
 
-## 7. Experimente você mesmo
+## 7. Três formas de executar
+
+| Modo | Comando | Fontes | Resultado | Precisa de |
+|---|---|---|---|---|
+| **Preview** | `python -m argus.demo` | mockadas | análise congelada (alimenta o dashboard) | nada |
+| **Mock-sources** | `ARGUS_MOCK_SOURCES=true python -m argus.main` | mockadas | **produzido ao vivo pela IA** | 1 LLM (OpenAI / Anthropic / Ollama local) |
+| **Full** | `python -m argus.main` | reais (Serper) | produzido ao vivo pela IA | OpenAI + Serper |
+
+**Fontes mockadas, resultado real.** No modo mock-sources, apenas as buscas/scrapes são
+simuladas (via `argus.mock_sources`); os agentes e o LLM realizam análise genuína. O modelo
+que produziu a análise é gravado no campo `analysis_model` da saída, e cada achado aponta para
+a fonte mockada exata que o originou
+([página de fontes](https://robertogfortes.github.io/argus-due-diligence/sources.html)).
+
+**Rode grátis e local** com [Ollama](https://ollama.com) — sem nenhuma chave de API:
 
 ```bash
-# Offline — sem chaves de API, gera um resultado real + alimenta o dashboard
-python -m argus.demo
-
-# Investigação completa — precisa de OPENAI_API_KEY + SERPER_API_KEY no .env
-python -m argus.main
+ARGUS_LLM_MODEL=ollama/llama3.1 ARGUS_LLM_BASE_URL=http://localhost:11434 \
+  ARGUS_MOCK_SOURCES=true python -m argus.main
 ```
 
 Abra o [`dashboard/index.html`](../dashboard/index.html) localmente, ou veja o
 [dashboard ao vivo](https://robertogfortes.github.io/argus-due-diligence/).
+
+> Cobertura completa (todos os 35 conceitos do curso): [COVERAGE.md](COVERAGE.md).
