@@ -1,0 +1,252 @@
+intake_task:
+  description: >
+    Load the appropriate playbook for engagement type '{engagement_type}' using the
+    DirectoryReadTool to read the playbooks directory. Review any available internal notes
+    about {target_company} using the FileReadTool if notes are provided.
+
+    Based on the playbook and the following inputs, produce a structured investigation plan:
+    - Target company: {target_company}
+    - Website: {company_website}
+    - Engagement type: {engagement_type}
+    - Jurisdiction: {jurisdiction}
+    - Company size: {company_size}
+    - Risk appetite: {risk_appetite}
+
+    The plan must specify investigation depth per dimension, key questions to answer,
+    jurisdiction-specific sources and registries to check, and any initial red flags
+    from the internal notes.
+
+    IMPORTANT: Do NOT fabricate any information. Document only what the playbook and
+    any provided notes confirm. Flag if notes are not available.
+  expected_output: >
+    A structured investigation plan in markdown format containing:
+    1. **Engagement Context** — company, website, type, jurisdiction, size, risk appetite
+    2. **Investigation Dimensions** — financial, reputational, legal, operational with depth
+       level (deep/standard/light) and rationale
+    3. **Key Questions per Dimension** — 3–5 specific questions each specialist must answer
+    4. **Priority Sources** — specific registries, databases, and search strategies for
+       {jurisdiction}
+    5. **Known Context** — any red flags or notes from internal files (or "No internal notes
+       provided" if none available)
+    6. **Investigation Timeline** — estimated complexity (simple/standard/complex)
+
+financial_investigation_task:
+  description: >
+    Conduct a thorough financial due diligence investigation of {target_company}
+    (website: {company_website}, jurisdiction: {jurisdiction}).
+
+    Use SerperDevTool to search for: financial statements, annual reports, revenue figures,
+    credit ratings, ownership and beneficial owner structure, related-party transactions,
+    and any reports of financial distress, fraud, or irregularities.
+
+    Use ScrapeWebsiteTool to extract financial data from relevant pages found.
+    Use FinancialHealthTool to analyze all collected financial text and produce a health score.
+
+    Investigate specifically:
+    - Revenue consistency and growth trajectory
+    - Cash flow signals
+    - Debt structure and leverage
+    - UBO (Ultimate Beneficial Owner) disclosure
+    - Any offshore holding structures
+    - Signs of financial distress (going concern, restatements, credit downgrades)
+    - Tax compliance signals
+
+    CRITICAL: NEVER invent financial figures. If public data is unavailable for a private
+    company, explicitly state that and use observable proxy signals instead.
+    Every finding must include a source URL or document reference.
+  expected_output: >
+    Financial investigation findings in markdown format with:
+    - **Financial Overview** — available revenue/profitability signals (with sources)
+    - **Ownership Structure** — who owns the company, UBO status, offshore flags
+    - **FinancialHealthTool Assessment** — score and rationale from the tool
+    - **Financial Red Flags** — each with: description, severity (low/medium/high),
+      source URL, confidence level
+    - **Data Gaps** — what public financial data was unavailable and why
+    - **Financial Risk Signal** — overall: low | medium | high with one-line rationale
+
+reputational_investigation_task:
+  description: >
+    Conduct a comprehensive reputational intelligence investigation of {target_company}
+    (website: {company_website}, jurisdiction: {jurisdiction}).
+
+    Use SerperDevTool to search for: news coverage (adverse and positive), controversies,
+    executive misconduct, customer complaints, employee reviews, ESG issues, regulatory
+    press releases, and brand perception in the past 5 years.
+
+    Use WebsiteSearchTool to semantically analyze the company's website content and claims.
+    Use NewsSentimentTool to score the overall news sentiment from collected text.
+
+    Focus on:
+    - Adverse media mentions (fraud, bribery, labor violations, safety incidents)
+    - CEO/executive background and public profile
+    - Customer and employee sentiment (Glassdoor, Reclame Aqui, social media)
+    - ESG and corporate governance reputation
+    - Industry perception and competitor mentions
+
+    Every finding must include a source URL and approximate publication date.
+    Distinguish clearly between verified facts and unverified allegations.
+  expected_output: >
+    Reputational investigation findings in markdown format with:
+    - **Media Sentiment Overview** — NewsSentimentTool score, positive/neutral/negative ratio
+    - **Key Adverse Media** — each item with: headline, date, source URL, severity, confidence
+    - **Executive Reputation** — key executives and any red flags
+    - **Customer/Employee Perception** — sentiment signals with sources
+    - **ESG Standing** — any verified environmental, social, or governance concerns
+    - **Reputational Risk Signal** — overall: low | medium | high with rationale
+
+legal_investigation_task:
+  description: >
+    Conduct a thorough legal and compliance investigation of {target_company}
+    (jurisdiction: {jurisdiction}).
+
+    Use SerperDevTool to search for: litigation records, regulatory sanctions, enforcement
+    actions, corporate registration data, UBO filings, AML and sanctions screening,
+    compliance certifications, and director backgrounds.
+
+    Use ScrapeWebsiteTool to access corporate registry pages for {jurisdiction}
+    (e.g., Receita Federal / CNPJ for Brazil, SEC EDGAR for US, Companies House for UK).
+    Use EntityConsistencyTool to analyze collected entity data for inconsistencies.
+
+    Cross-reference: company name variations, registered addresses vs operational addresses,
+    director name consistency, registration dates vs claimed founding dates.
+
+    Every finding must include a source URL or registry reference.
+    Clearly distinguish active vs. resolved legal matters.
+  expected_output: >
+    Legal and compliance findings in markdown format with:
+    - **Corporate Entity Verification** — registered name, number, address, status, date
+    - **Litigation Summary** — active cases, past judgments (last 5 years), regulatory actions
+    - **Sanctions & AML Screening** — results from OFAC, EU, COAF/TCU (per jurisdiction)
+    - **EntityConsistencyTool Results** — all inconsistencies flagged with severity
+    - **Compliance Certifications** — found and verified
+    - **Director Backgrounds** — any past corporate failures or investigations found
+    - **Legal Risk Signal** — overall: low | medium | high with rationale
+
+operational_investigation_task:
+  description: >
+    Conduct an operational footprint verification of {target_company}
+    (website: {company_website}, jurisdiction: {jurisdiction}).
+
+    Use SerperDevTool to search for: physical location mentions, employee count data,
+    key customer or supplier references, product/service delivery evidence,
+    certifications, and any operational news.
+
+    Use ScrapeWebsiteTool to verify information from the company website {company_website}.
+    Analyze website content, contact information, team pages, and certifications listed.
+    Use RedFlagScorerTool on the collected operational text to score risk signals.
+
+    Verify specifically:
+    - Physical presence claims vs. observable evidence
+    - Employee headcount consistency (LinkedIn, job postings, website vs. claimed)
+    - Key customer/supplier names and verifiability
+    - Website age, quality, and consistency with claimed business
+    - Technology or production certifications
+    - Any operational news or delivery incidents
+
+    Every finding must cite its source. Clearly label what is verified vs. claimed.
+  expected_output: >
+    Operational footprint findings in markdown format with:
+    - **Physical Presence** — addresses found, verified or not, with source
+    - **Employee & Organization** — headcount signals, key personnel, consistency
+    - **Customer & Supplier Evidence** — named references found in public sources
+    - **Digital Presence Assessment** — website age, quality, social media, job postings
+    - **RedFlagScorerTool Results** — score and flagged text excerpts
+    - **Certifications & Compliance** — operational certifications found (ISO, etc.)
+    - **Operational Risk Signal** — overall: low | medium | high with rationale
+
+verification_task:
+  description: >
+    Review ALL findings from the four investigation dimensions for {target_company}.
+    You have access to the financial, reputational, legal, and operational investigation results.
+
+    For EACH finding across all dimensions:
+    1. Confirm it has a cited, verifiable source (URL, document name, or registry reference)
+    2. Check internal consistency across dimensions (e.g., financial distress should align
+       with operational signals; legal sanctions should align with reputational findings)
+    3. Assign or confirm confidence level: high (verified primary source) | medium (credible
+       but not independently confirmed) | low (single unverified source)
+    4. Flag for specialist to correct/remove: any finding missing a source or citing an
+       inaccessible URL
+    5. Flag as fabricated/speculative: any finding that appears invented or unsubstantiated
+
+    Use MDXSearchTool to cross-reference findings against the internal risk policies for
+    correct severity classification.
+
+    CRITICAL: Do NOT allow any finding without an explicit, verifiable source to pass
+    through to the dossier. Better to have fewer, solid findings than many unverified ones.
+
+    PAUSE: Before completing this task, present all HIGH severity adverse findings for
+    human analyst review and approval.
+  expected_output: >
+    Verification report containing:
+    - **Verified Findings** — consolidated list, each with: dimension, description, severity,
+      source URL, confidence level
+    - **Removed/Downgraded Findings** — items removed or downgraded with reason
+    - **Cross-Dimension Consistency** — any contradictions or reinforcing patterns found
+    - **Human Review Required** — HIGH severity adverse findings needing analyst sign-off
+    - **Verification Status** — PASSED | PASSED_WITH_CONDITIONS | FAILED
+    - **QA Summary** — total findings in / verified out / removed count
+
+dossier_task:
+  description: >
+    Synthesize all verified investigation findings for {target_company} into a complete
+    due diligence dossier and a typed CompanyRiskProfile JSON object.
+
+    You have access to:
+    - The investigation plan (intake task output)
+    - All four dimension investigation reports
+    - The QA-verified findings list
+
+    Produce:
+    1. A CompanyRiskProfile JSON with ALL required fields:
+       - company_name, engagement_type, jurisdiction, investigation_date (today's ISO date)
+       - overall_risk (low|medium|high), financial_score (0-100)
+       - financial, reputational, legal, operational dimension objects
+       - red_flags list (all verified red flags with category, description, severity, evidence_url, confidence)
+       - verified (true), human_reviewed (true if human_input was provided)
+       - recommendation (proceed|proceed_with_conditions|decline)
+       - conditions (string if proceed_with_conditions, null otherwise)
+       - risk_rationale (brief explanation of the overall rating)
+
+    2. A comprehensive due_diligence_dossier.md covering all dimensions
+
+    Base ALL conclusions strictly on verified findings only.
+    Weigh findings by severity AND confidence. Explain your risk rating rationale explicitly.
+    Today's date is {investigation_date}.
+  expected_output: >
+    1. A valid CompanyRiskProfile JSON object with all fields populated
+    2. due_diligence_dossier.md containing:
+       - Executive Summary (3–5 sentences, overall risk and recommendation)
+       - Investigation Scope and Methodology
+       - Financial Risk Assessment (with FinancialHealthTool score)
+       - Reputational Risk Assessment (with NewsSentimentTool score)
+       - Legal & Compliance Assessment (with EntityConsistencyTool findings)
+       - Operational Assessment (with RedFlagScorerTool findings)
+       - Consolidated Red Flags Table (all HIGH and MEDIUM findings)
+       - Overall Risk Rating and Detailed Rationale
+       - Recommendation with explicit conditions if applicable
+       - Sources List
+
+briefing_task:
+  description: >
+    Transform the complete due diligence dossier for {target_company} into a concise,
+    board-ready executive briefing (maximum 2 pages, approximately 600–800 words).
+
+    The briefing must be:
+    - Impartial and evidence-based (no unsupported claims)
+    - Decision-enabling (the reader knows exactly what to do and why)
+    - Written in clear, executive-level language (no technical jargon)
+    - Structured as: Context → Key Findings → Risk Rating → Recommendation → Next Steps
+
+    Every risk claim must be traceable to the dossier. Do not introduce new information.
+    Save the output as risk_briefing.md.
+  expected_output: >
+    risk_briefing.md containing an executive briefing with:
+    - **Context** (1 paragraph) — who is {target_company}, what relationship is proposed,
+      why we investigated, when
+    - **Key Findings** (3–5 bullet points) — highest-impact findings only, each with
+      a severity indicator [HIGH/MEDIUM/LOW]
+    - **Risk Rating**: [LOW | MEDIUM | HIGH] — one sentence rationale
+    - **Recommendation**: [PROCEED | PROCEED WITH CONDITIONS | DECLINE]
+    - **Conditions/Next Steps** (if applicable) — specific, actionable items
+    - **Sign-off line** — "Reviewed by: _________________ Date: _________________"
