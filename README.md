@@ -6,6 +6,51 @@
 
 O sistema orquestra 8 agentes especialistas em um processo hierárquico e paralelo, produzindo um **perfil de risco tipado + dossiê + briefing executivo** — sem inventar nada.
 
+<p align="center">
+  <a href="https://robertogfortes.github.io/argus-due-diligence/">
+    <img src="docs/dashboard-preview.png" alt="ARGUS Dashboard — pré-visualização do resultado final da investigação" width="820" />
+  </a>
+</p>
+
+<p align="center">
+  <b><a href="https://robertogfortes.github.io/argus-due-diligence/">🖥️ Ver o dashboard ao vivo</a></b>
+  &nbsp;·&nbsp;
+  📖 Docs: <a href="docs/ARCHITECTURE.en.md">English</a> · <a href="docs/ARCHITECTURE.pt-br.md">Português</a>
+  &nbsp;·&nbsp;
+  🧪 <a href="#-preview-do-resultado-sem-api-key">Preview sem API key</a>
+</p>
+
+> 💡 **Prévia do processamento:** o dashboard acima renderiza uma **saída real do ARGUS**
+> (o `risk_profile.json` gerado pelo pipeline). Rode `python -m argus.demo` para gerar o
+> conjunto completo de resultados offline — sem nenhuma chave de API — e veja exatamente o
+> formato dos dados que a IA produz ao final deste fluxo.
+
+---
+
+## 🖼️ Preview do resultado (sem API key)
+
+Para ver o resultado final do processamento **sem configurar nada**, rode o modo demo. Ele
+gera um `CompanyRiskProfile` tipado (validado pelo Pydantic) e alimenta o dashboard:
+
+```bash
+pip install -e .
+python -m argus.demo         # gera outputs/ + dashboard/data/
+# abra dashboard/index.html no navegador
+```
+
+Isso produz:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `outputs/risk_profile.json` | Perfil de risco tipado (o mesmo que a IA gera no fluxo real) |
+| `outputs/due_diligence_dossier.md` | Dossiê completo por dimensão |
+| `outputs/risk_briefing.md` | Briefing executivo de 1 página |
+| `dashboard/data/risk_profile.js` | Alimenta o painel visual |
+
+> Os dados do demo são **ilustrativos e fictícios** (empresa "Acme Components Ltda"),
+> apenas para demonstrar o formato. No fluxo real (`python -m argus.main` com chaves de API),
+> os mesmos arquivos são gerados a partir de fontes públicas reais.
+
 ---
 
 ## 🏗️ Arquitetura
