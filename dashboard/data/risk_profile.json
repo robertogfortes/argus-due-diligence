@@ -8,70 +8,70 @@
   "financial": {
     "risk_level": "medium",
     "score": 58,
-    "summary": "Stable revenue but limited public disclosure and moderate leverage warrant financial monitoring.",
+    "summary": "Stable revenue and clean ownership, but private-company disclosure limits and above-median leverage warrant financial monitoring.",
     "top_findings": [
-      "Revenue reported consistent across two independent sources (2023-2024).",
-      "Debt-to-equity estimated above sector median from public filings.",
-      "Ultimate beneficial owner disclosed and not sanctioned."
+      "Reported revenue ~R$142M in 2024 (+6% YoY), described as a stable order book (Valor Setorial).",
+      "Serasa public credit profile 'moderate'; estimated debt-to-equity above the auto-parts sector median, with no recorded defaults.",
+      "Ultimate beneficial owner disclosed and resident in Brazil; no offshore holding (JUCESP)."
     ]
   },
   "reputational": {
     "risk_level": "low",
     "score": 74,
-    "summary": "Largely neutral-to-positive media coverage; isolated resolved complaints.",
+    "summary": "Neutral-to-positive coverage with no substantiated adverse media; only minor, already-resolved complaints.",
     "top_findings": [
-      "No adverse media on fraud or corruption in 5-year lookback.",
-      "Two resolved consumer complaints on Reclame Aqui (2022).",
-      "Positive trade-press coverage on ISO 9001 certification (2023)."
+      "No adverse media on fraud, bribery, or safety in a 5-year search (g1, Valor, Estadão).",
+      "Positive trade-press coverage of ISO 9001 certification (Automotive Business, 2023).",
+      "Two consumer complaints on Reclame Aqui (2022), both resolved; reputation score 'Bom'."
     ]
   },
   "legal": {
     "risk_level": "medium",
     "score": 61,
-    "summary": "Active commercial litigation of limited value; registration consistent.",
+    "summary": "Registration is clean and consistent; the only material issue is a mid-value active lawsuit.",
     "top_findings": [
-      "One active commercial lawsuit (contract dispute, ~R$ 480k).",
-      "CNPJ active and consistent across Receita Federal and JUCESP.",
-      "No sanctions matches on OFAC, EU, or COAF watch lists."
+      "One ACTIVE commercial lawsuit (~R$480k, breach of a supply contract, filed 2024, not yet adjudicated) — TJSP e-SAJ.",
+      "No sanctions or debarment: clean on OFAC/EU lists and CGU CEIS/CNEP.",
+      "CNPJ 12.345.678/0001-99 ATIVA; registration consistent across Receita Federal and JUCESP since 2011."
     ]
   },
   "operational": {
     "risk_level": "medium",
     "score": 63,
-    "summary": "Physical presence verified; headcount claims slightly overstated.",
+    "summary": "Physical presence and certification check out; the main flag is an overstated headcount claim.",
     "top_findings": [
-      "Registered address matches street-view of an industrial facility.",
-      "LinkedIn headcount (~180) below website claim of '250+ employees'.",
-      "ISO 9001 certification verified with certifying body."
+      "Registered address (Av. Industrial 1200, Diadema/SP) consistent across Receita Federal and the company website.",
+      "Headcount discrepancy: website claims '250+ employees' vs ~180 on LinkedIn ('51-200' band).",
+      "ISO 9001 certificate for the Diadema facility verified; active job postings consistent with an operating plant."
     ]
   },
   "red_flags": [
     {
       "category": "legal",
-      "description": "Active commercial lawsuit for alleged breach of a supply contract (~R$ 480k in dispute), filed 2024. Not yet adjudicated.",
+      "description": "Active commercial lawsuit: a supplier alleges breach of a supply contract (~R$480k in dispute), filed 2024 and not yet adjudicated.",
       "severity": "medium",
-      "evidence_url": "https://esaj.tjsp.jus.br/cposg/search.do?processo=xxxxxxx",
+      "evidence_url": "sources.html#litigation",
       "confidence": "high"
     },
     {
       "category": "financial",
-      "description": "Estimated debt-to-equity ratio exceeds the sector median, suggesting moderate leverage. Based on public filing proxies, not audited figures.",
+      "description": "Estimated debt-to-equity above the auto-parts sector median (moderate leverage). Based on a public credit profile, not audited statements.",
       "severity": "medium",
-      "evidence_url": "https://www.jucesp.sp.gov.br/",
+      "evidence_url": "sources.html#financials",
       "confidence": "medium"
     },
     {
       "category": "operational",
-      "description": "Website claims '250+ employees' while LinkedIn and job-board signals indicate approximately 180. Possible overstatement of capacity.",
+      "description": "Website claims '250+ employees' while LinkedIn and job-board signals indicate ~180. Possible overstatement of production capacity.",
       "severity": "low",
-      "evidence_url": "https://www.linkedin.com/company/acme-components/",
+      "evidence_url": "sources.html#operations",
       "confidence": "medium"
     },
     {
       "category": "reputational",
       "description": "Two consumer complaints on Reclame Aqui (2022), both marked resolved. No pattern of unresolved grievances.",
       "severity": "low",
-      "evidence_url": "https://www.reclameaqui.com.br/empresa/acme-components/",
+      "evidence_url": "sources.html#reputation",
       "confidence": "high"
     }
   ],
@@ -79,5 +79,7 @@
   "human_reviewed": true,
   "recommendation": "proceed_with_conditions",
   "conditions": "Proceed contingent on: (1) resolution or provision for the active lawsuit; (2) 90-day payment terms with a financial-monitoring clause for the first 12 months; (3) a supplier audit clause to confirm production capacity.",
-  "risk_rationale": "Overall MEDIUM risk. No deal-killers (no sanctions, no fraud, verified physical presence and UBO). Concerns are a mid-value active lawsuit, moderate leverage, and a minor capacity overstatement — all manageable with standard contractual protections, hence a conditional proceed rather than an outright approval."
+  "risk_rationale": "Overall MEDIUM risk. No deal-killers were found in the sources (no sanctions, no fraud, verified physical presence, disclosed domestic UBO). The concerns are a mid-value active lawsuit, above-median leverage, and a minor capacity overstatement — all manageable with standard contractual protections, hence a conditional proceed rather than an outright approval.",
+  "analysis_model": "claude-opus-4-8",
+  "source_mode": "mocked-sources"
 }

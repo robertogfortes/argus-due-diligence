@@ -115,7 +115,13 @@ function render(p) {
     <section class="summary-bar">
       <div class="company">
         <h2>${esc(p.company_name)}</h2>
-        <span class="meta">${esc(p.jurisdiction)} · Investigated ${esc(p.investigation_date)}</span>
+        <span class="meta">${esc(p.jurisdiction)} · Investigated ${esc(p.investigation_date)}${
+          p.analysis_model
+            ? ` · analyzed by <b>${esc(p.analysis_model)}</b>${
+                p.source_mode ? ` · sources: ${esc(p.source_mode)}` : ""
+              }`
+            : ""
+        }</span>
       </div>
       <span class="chip">${esc(prettyEng(p.engagement_type))}</span>
       ${p.verified ? '<span class="badge">Verified</span>' : ""}

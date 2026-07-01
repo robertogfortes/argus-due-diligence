@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARGUS — Mocked Source Corpus</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .src-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+    .src-banner { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 12px; padding: 14px 18px; color: #fde68a; font-size: 14px;
+      margin-bottom: 26px; }
+    .source-page { background: var(--panel); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; scroll-margin-top: 20px; }
+    .source-page h2 { margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px; color: var(--accent); }
+    .entry { padding: 12px 0; border-top: 1px solid var(--border); }
+    .entry:first-of-type { border-top: none; }
+    .entry-head { display: flex; justify-content: space-between; gap: 10px;
+      align-items: baseline; }
+    .src-name { font-weight: 700; font-size: 14.5px; }
+    .src-date { color: var(--muted); font-size: 12px; }
+    .src-ref { color: var(--accent); font-size: 12.5px; margin: 2px 0 6px;
+      word-break: break-all; }
+    .src-text { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text); }
+    .back { display: inline-block; margin-bottom: 20px; color: var(--accent);
+      text-decoration: none; font-size: 14px; }
+    .back:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="src-wrap">
+    <a class="back" href="index.html">← Back to dashboard</a>
+    <h1 style="font-family:'Space Grotesk',sans-serif;letter-spacing:2px">ARGUS · Source Corpus</h1>
+    <div class="src-banner">
+      ⚠️ <b>Mocked sources.</b> This is a <b>simulated</b> OSINT corpus for the fictional
+      company “Acme Components Ltda”, used to demonstrate the ARGUS pipeline offline. The
+      references below are illustrative and do not point to real external records. Each finding
+      on the dashboard links here, to the exact mocked source it was derived from.
+    </div>
+  <section id="financials" class="source-page">
+      <h2>Financial signals</h2>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Valor Setorial</span>
+          <span class="src-date">2025-03-11</span></div>
+        <div class="src-ref">valorsetorial.com.br/acme-2024</div>
+        <p class="src-text">Acme Components divulga receita de R$ 142 mi em 2024 — crescimento ~6% a/a. Empresa é de capital fechado e não publica demonstrações auditadas completas; direção cita 'carteira de pedidos estável'.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Serasa Experian (resumo público)</span>
+          <span class="src-date">2025-01-20</span></div>
+        <div class="src-ref">serasa.com.br/empresas/acme-components</div>
+        <p class="src-text">Perfil de crédito: moderado. Estimativa de dívida/patrimônio acima da mediana do setor de autopeças; nenhum default registrado.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">JUCESP — ficha cadastral</span>
+          <span class="src-date">2024-11-02</span></div>
+        <div class="src-ref">jucesp.sp.gov.br/acme</div>
+        <p class="src-text">Dois sócios declarados; beneficiário final identificado e residente no Brasil. Nenhuma holding offshore detectada.</p>
+      </div>
+    </section>
+  <section id="litigation" class="source-page">
+      <h2>Litigation &amp; sanctions</h2>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">TJSP / e-SAJ</span>
+          <span class="src-date">2024-06-14</span></div>
+        <div class="src-ref">esaj.tjsp.jus.br/cposg/search.do?processo=1023xxx</div>
+        <p class="src-text">Processo nº 1023xxx-45.2024.8.26 — ATIVO. Um fornecedor alega inadimplemento contratual; valor da causa ~R$ 480.000. Distribuído em 2024, ainda não julgado.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Portal da Transparência / CGU</span>
+          <span class="src-date">2025-02-01</span></div>
+        <div class="src-ref">portaltransparencia.gov.br</div>
+        <p class="src-text">Sem registros em CEIS/CNEP (sem inidoneidade/impedimento). Nenhuma sanção administrativa.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">OFAC SDN / EU consolidated list</span>
+          <span class="src-date">2025-02-01</span></div>
+        <div class="src-ref">sanctionssearch.ofac.treas.gov</div>
+        <p class="src-text">Nenhuma correspondência na lista OFAC SDN nem na lista consolidada da União Europeia.</p>
+      </div>
+    </section>
+  <section id="registration" class="source-page">
+      <h2>Corporate registration</h2>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Receita Federal — CNPJ</span>
+          <span class="src-date">2025-01-05</span></div>
+        <div class="src-ref">receita.fazenda.gov.br</div>
+        <p class="src-text">CNPJ 12.345.678/0001-99 — ACME COMPONENTS LTDA — Situação: ATIVA. Endereço: Av. Industrial 1200, Diadema/SP. CNAE principal: fabricação de peças e acessórios para veículos. Abertura: 2011.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">JUCESP</span>
+          <span class="src-date">2024-11-02</span></div>
+        <div class="src-ref">jucesp.sp.gov.br/acme</div>
+        <p class="src-text">Razão social e endereço consistentes com a Receita Federal. Sem variações de nome; sem flags de empresa dormente ou laranja. Registro ativo desde 2011.</p>
+      </div>
+    </section>
+  <section id="reputation" class="source-page">
+      <h2>Reputation &amp; media</h2>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Automotive Business</span>
+          <span class="src-date">2023-08-02</span></div>
+        <div class="src-ref">automotivebusiness.com.br/acme-iso</div>
+        <p class="src-text">Acme Components conquista certificação ISO 9001 — cobertura positiva de imprensa setorial sobre gestão de qualidade.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Reclame Aqui</span>
+          <span class="src-date">2022-09-10</span></div>
+        <div class="src-ref">reclameaqui.com.br/empresa/acme-components</div>
+        <p class="src-text">Duas reclamações de consumidor em 2022, ambas marcadas como RESOLVIDAS. Reputação 'Bom'. Nenhum padrão de problemas recorrentes.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Busca de mídia adversa (g1, Valor, Estadão)</span>
+          <span class="src-date">2025-02-10</span></div>
+        <div class="src-ref">news search — 5-year lookback</div>
+        <p class="src-text">Nenhuma mídia adversa sobre fraude, suborno, corrupção ou incidentes de segurança encontrada em busca de 5 anos.</p>
+      </div>
+    </section>
+  <section id="operations" class="source-page">
+      <h2>Operations &amp; workforce</h2>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">LinkedIn — company page</span>
+          <span class="src-date">2025-02-08</span></div>
+        <div class="src-ref">linkedin.com/company/acme-components</div>
+        <p class="src-text">Página lista '51-200 funcionários'; ~180 perfis associados. Sede em Diadema/SP.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Gupy / job boards</span>
+          <span class="src-date">2025-02-07</span></div>
+        <div class="src-ref">gupy.io/acme-components</div>
+        <p class="src-text">Diversas vagas abertas em produção e qualidade — consistente com uma planta de autopeças em operação.</p>
+      </div>
+      <div class="entry">
+        <div class="entry-head"><span class="src-name">Registro do organismo certificador ISO</span>
+          <span class="src-date">2024-12-01</span></div>
+        <div class="src-ref">certifier-registry/acme</div>
+        <p class="src-text">Certificado ISO 9001 ativo e verificado para a unidade de Diadema. OBS.: o site da empresa afirma '250+ funcionários', acima dos sinais de LinkedIn/job boards (~180).</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
